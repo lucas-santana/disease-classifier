@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+
+
+</head>
+
+<body>
+    <img id="img1" name="DRUSEN-987193-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/val/DRUSEN/DRUSEN-9928043-1.jpeg"  width="180" height="180"/>
+    <img id="img2" name="NORMAL-98720-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/test/NORMAL/NORMAL-3538316-1.jpeg" width="180" height="180" />
+
+
+    <script type="module">
+        //Uso o http-server para rodar servidor web local: http-server -c1 --cors .
+        const model = await tf.loadLayersModel('http://127.0.0.1:8080/conversao_01_06/model.json');
+
+        const imgDrusen = document.getElementById('img1');
+
+        const tensor3DDrusen = tf.browser.fromPixels(imgDrusen);//Creates a tf.Tensor from an image.
+        const tensor4DDrusen = tensor3DDrusen.reshape([1, 180, 180, 3])
+      
+        const predictionDrusen = model.predict(tensor4DDrusen);
+        console.log(predictionDrusen);
+
+        console.log("Imagem: "+imgDrusen.name+" \nPredict: "+predictionDrusen.dataSync()[0]);
+
+
+        const imgNormal = document.getElementById('img2');
+
+        const tensor3DNormal = tf.browser.fromPixels(imgNormal);//Creates a tf.Tensor from an image.
+        const tensor4DNormal = tensor3DNormal.reshape([1, 180, 180, 3])
+      
+        const predictionNormal = model.predict(tensor4DNormal);
+        console.log(predictionNormal);
+
+        console.log("Imagem: "+imgNormal.name+" \nPredict: "+predictionNormal.dataSync()[0]);
+
+
+        console.log("------------------------------------------------------------------");
+        
+
+    </script>
+</body>
+
+</html>
