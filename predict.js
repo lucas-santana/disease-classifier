@@ -1,39 +1,53 @@
 var fs = require('fs');
-// var files = fs.readdirSync('test/');
-// console.log(files);
-
 
 const tf = require('@tensorflow/tfjs-node');
+const ObjectsToCsv = require('objects-to-csv');
 
-async function classificar() {
+
+const folderPath = 'dataset/test/DRUSEN';
+const files = []
+
+fs.readdirSync(folderPath).map(fileName => {
+    files.push({'fileName':fileName,'fullPath':require('path').join(folderPath, fileName)})
+})
+
+async function classificar(filePath) {
     const model = await tf.loadLayersModel('file://conversao_01_06/model.json');
-    //const imgDrusen = document.getElementById('img1');
 
-    const imgDrusen = fs.readFileSync('dataset/val/DRUSEN/DRUSEN-9928043-1.jpeg');
-    tensor3DDrusen = tf.node.decodeJpeg(imgDrusen,3)
-    tensor3DDrusen = tf.image.resizeBilinear(tensor3DDrusen, size = [180, 180]); // can also use tf.image.resizeNearestNeighbor
-    tensor3DDrusen = tensor3DDrusen.expandDims()
+    const img = fs.readFileSync(filePath);
+    tensor3D = tf.node.decodeJpeg(img,3);
+    tensor3D = tf.image.resizeBilinear(tensor3D, size = [180, 180]); 
+    tensor3D = tensor3D.expandDims();
     
-    // console.log(tensor3DDrusenResized)
-    // const tensor4DDrusen = tensor3DDrusenResized.reshape([1, 180, 180, 3])
-    // console.log(tensor4DDrusen)
+    const prediction = model.predict(tensor3D);
+    //console.log(prediction.dataSync()[0]);
 
-    const predictionDrusen = model.predict(tensor3DDrusen);
-    console.log(predictionDrusen.dataSync()[0]);
-
-    // console.log("Imagem: " + imgDrusen.name + " \nPredict: " + predictionDrusen.dataSync()[0]);
-
-
-    // const imgNormal = document.getElementById('img2');
-
-    // const tensor3DNormal = tf.browser.fromPixels(imgNormal);//Creates a tf.Tensor from an image.
-    // const tensor4DNormal = tensor3DNormal.reshape([1, 180, 180, 3])
-
-    // const predictionNormal = model.predict(tensor4DNormal);
-    // console.log(predictionNormal);
-
-    // console.log("Imagem: " + imgNormal.name + " \nPredict: " + predictionNormal.dataSync()[0]);
+    return prediction;
 }
 
-classificar();
+let resultData = []
+
+
+Promise.all(files.map( async (file) => {
+        let result = await classificar(file.fullPath)
+
+        resultData.push({"fileName":file.fileName, "prediction":result.dataSync()[0]})
+    }))
+
+setTimeout( () => {
+    //console.log(resultData)
+
+    (async () => {
+        const csv = new ObjectsToCsv(resultData);
+       
+        // Save to file:
+        await csv.toDisk('./drusen_test.csv');
+       
+        // Return the CSV file as string:
+        console.log(await csv.toString());
+      })();
+}, 2000)
+
+
+
 
