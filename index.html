@@ -13,17 +13,18 @@
 </head>
 
 <body>
-    <img id="img1" name="DRUSEN-987193-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/val/DRUSEN/DRUSEN-9928043-1.jpeg"  width="180" height="180"/>
-    <img id="img2" name="NORMAL-98720-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/test/NORMAL/NORMAL-3538316-1.jpeg" width="180" height="180" />
+    <img id="img1" name="DRUSEN-987193-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/val/DRUSEN/DRUSEN-9800172-2.jpeg"/>
+    <img id="img2" name="NORMAL-98720-1.jpeg" crossorigin src="http://127.0.0.1:8080/dataset/val/NORMAL/NORMAL-9053621-1.jpeg"/>
 
 
     <script type="module">
         //Uso o http-server para rodar servidor web local: http-server -c1 --cors .
-        const model = await tf.loadLayersModel('http://127.0.0.1:8080/conversao_01_06/model.json');
+         const model = await tf.loadLayersModel('http://127.0.0.1:8080/conversao_01_06/model.json');
 
         const imgDrusen = document.getElementById('img1');
 
-        const tensor3DDrusen = tf.browser.fromPixels(imgDrusen);//Creates a tf.Tensor from an image.
+        let tensor3DDrusen = tf.browser.fromPixels(imgDrusen);//Creates a tf.Tensor from an image.
+        tensor3DDrusen = tf.image.resizeBilinear(tensor3DDrusen, [180, 180]);
         const tensor4DDrusen = tensor3DDrusen.reshape([1, 180, 180, 3])
       
         const predictionDrusen = model.predict(tensor4DDrusen);
@@ -32,18 +33,19 @@
         console.log("Imagem: "+imgDrusen.name+" \nPredict: "+predictionDrusen.dataSync()[0]);
 
 
-        const imgNormal = document.getElementById('img2');
+        // const imgNormal = document.getElementById('img2');
 
-        const tensor3DNormal = tf.browser.fromPixels(imgNormal);//Creates a tf.Tensor from an image.
-        const tensor4DNormal = tensor3DNormal.reshape([1, 180, 180, 3])
+        // let tensor3DNormal = tf.browser.fromPixels(imgNormal);//Creates a tf.Tensor from an image.
+        // tensor3DNormal = tf.image.resizeBilinear(tensor3DNormal, [180, 180]);
+        // const tensor4DNormal = tensor3DNormal.reshape([1, 180, 180, 3])
       
-        const predictionNormal = model.predict(tensor4DNormal);
-        console.log(predictionNormal);
+        // const predictionNormal = model.predict(tensor4DNormal);
+        // console.log(predictionNormal);
 
-        console.log("Imagem: "+imgNormal.name+" \nPredict: "+predictionNormal.dataSync()[0]);
+        // console.log("Imagem: "+imgNormal.name+" \nPredict: "+predictionNormal.dataSync()[0]);
 
 
-        console.log("------------------------------------------------------------------");
+        // console.log("------------------------------------------------------------------");
         
 
     </script>
