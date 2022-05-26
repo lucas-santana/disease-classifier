@@ -23,8 +23,8 @@ function loadImages(dataDir) {
     dataDir1 = dataDir + `/${classes[j]}`;
     files = fs.readdirSync(dataDir1);
 
-    for (let i = 0; i < 20; i++) {
-      //console.log(`Checking ${classes[j]} images..|| image = ${files[i]}`);
+    for (let i = 0; i < files.length; i++) {
+      console.log(`Checking ${classes[j]} images..|| image = ${files[i]}`);
       if (!files[i].toLocaleLowerCase().endsWith(".jpeg")) {
         continue;
       }
@@ -46,9 +46,11 @@ function loadImages(dataDir) {
         .expandDims();
 
       images.push(imageTensor);
+      
       labels.push(j);
     }
   }
+  
   return [images, labels];
 }
 
@@ -62,7 +64,7 @@ class Dataset {
   // Loads training and test data.
   loadData() {
     console.log("Loading images...");
-    this.trainData = loadImages(TRAIN_FOLDER);
+    //this.trainData = loadImages(TRAIN_FOLDER);
     //console.log(this.trainData);
     this.testData = loadImages(TEST_FOLDER);
     console.log("Images loaded successfully.");
@@ -76,12 +78,26 @@ class Dataset {
         .toFloat(),
     };
   }
-  getTestData() {
+  async getTestData() {
+    let imagesTensor =  tf.concat(this.testData[0]);
+
+    let labelTensor =  tf.tensor1d(this.testData[1], "int32");
+    //labelTensor = tf.oneHot(labelTensor, 2);
+    
+    labelTensor = labelTensor.toFloat();
+
+    // await labelTensor.array().then(array => {
+    //   console.log(array)
+    // })
+
+    // await imagesTensor.array().then(array => {
+    //   imagesTensor = array;
+    // })
+    
+  
     return {
-      images: tf.concat(this.testData[0]),
-      labels: tf
-        .oneHot(tf.tensor1d(this.testData[1], "int32"), this.n)
-        .toFloat(),
+      images: imagesTensor,
+      labels: labelTensor
     };
   }
 }
@@ -123,14 +139,13 @@ async function avaliar() {
   );
 
   dataSet.loadData();
+  
+  const { images: testImages, labels: testLabels } = await dataSet.getTestData();
 
-  const { images: testImages, labels: testLabels } = dataSet.getTestData();
-
-  modelo.compile({optimizer: "adam",loss: "binaryCrossentropy", metrics: ['accuracy']});
-
+  modelo.compile({ optimizer: "adam", loss: "binaryCrossentropy", metrics: ['accuracy'] });
+  
   const evalOutput = modelo.evaluate(testImages, testLabels);
 
-  
   console.log(
     `\nEvaluation result:\n` +
       `  Loss = ${evalOutput[0].dataSync()[0].toFixed(3)}; ` +
