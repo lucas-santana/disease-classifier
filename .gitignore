@@ -2,3 +2,4 @@ node_modules/
 dataset/
 .csv
 oct_2017/*
+.ipynb_checkpoints

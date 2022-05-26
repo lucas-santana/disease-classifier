@@ -46,11 +46,11 @@ function loadImages(dataDir) {
         .expandDims();
 
       images.push(imageTensor);
-      
+
       labels.push(j);
     }
   }
-  
+
   return [images, labels];
 }
 
@@ -64,8 +64,6 @@ class Dataset {
   // Loads training and test data.
   loadData() {
     console.log("Loading images...");
-    //this.trainData = loadImages(TRAIN_FOLDER);
-    //console.log(this.trainData);
     this.testData = loadImages(TEST_FOLDER);
     console.log("Images loaded successfully.");
   }
@@ -75,16 +73,15 @@ class Dataset {
       images: tf.concat(this.trainData[0]),
       labels: tf
         .oneHot(tf.tensor1d(this.trainData[1], "int32"), this.n)
-        .toFloat(),
     };
   }
   async getTestData() {
-    let imagesTensor =  tf.concat(this.testData[0]);
+    let imagesTensor = tf.concat(this.testData[0]);
 
-    let labelTensor =  tf.tensor1d(this.testData[1], "int32");
+    let labelTensor = tf.tensor1d(this.testData[1], "int32");
     //labelTensor = tf.oneHot(labelTensor, 2);
-    
-    labelTensor = labelTensor.toFloat();
+
+    labelTensor = labelTensor;
 
     // await labelTensor.array().then(array => {
     //   console.log(array)
@@ -93,11 +90,10 @@ class Dataset {
     // await imagesTensor.array().then(array => {
     //   imagesTensor = array;
     // })
-    
-  
+
     return {
       images: imagesTensor,
-      labels: labelTensor
+      labels: labelTensor,
     };
   }
 }
@@ -139,12 +135,19 @@ async function avaliar() {
   );
 
   dataSet.loadData();
-  
-  const { images: testImages, labels: testLabels } = await dataSet.getTestData();
 
-  modelo.compile({ optimizer: "adam", loss: "binaryCrossentropy", metrics: ['accuracy'] });
-  
-  const evalOutput = modelo.evaluate(testImages, testLabels);
+  const { images: testImages, labels: testLabels } =
+    await dataSet.getTestData();
+
+  const optimizer = tf.train.adam(0.0010000000474974513);
+
+  modelo.compile({
+    optimizer: optimizer,
+    loss: "binaryCrossentropy",
+    metrics: ["accuracy"],
+  });
+
+  const evalOutput = modelo.evaluate(testImages, testLabels,{ batchSize: 32 });
 
   console.log(
     `\nEvaluation result:\n` +
