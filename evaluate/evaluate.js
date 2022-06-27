@@ -2,8 +2,8 @@ const tf = require("@tensorflow/tfjs-node");
 const fs = require("fs");
 const path = require("path");
 
-const TRAIN_FOLDER = "../dataset/train/";
-const TEST_FOLDER = "../dataset/test/";
+const TRAIN_FOLDER = "../novo/train/";
+const TEST_FOLDER = "../novo/test/";
 
 const classes = ["DRUSEN", "NORMAL"];
 
@@ -24,12 +24,13 @@ function loadImages(dataDir) {
     files = fs.readdirSync(dataDir1);
 
     for (let i = 0; i < files.length; i++) {
-      console.log(`Checking ${classes[j]} images..|| image = ${files[i]}`);
       if (!files[i].toLocaleLowerCase().endsWith(".jpeg")) {
         continue;
       }
 
       filePath = path.join(dataDir1, files[i]);
+
+      console.log(`Checking ${classes[j]} images..|| image = ${filePath}`);
 
       buffer = fs.readFileSync(filePath);
 
@@ -130,16 +131,14 @@ async function run(epochs, batchSize, modelSavePath) {
 }
 
 async function avaliar() {
-  const modelo = await tf.loadLayersModel(
-    "file://../conversao_01_06/model.json"
-  );
+  const modelo = await tf.loadLayersModel("file://../conversao_01_14/model.json");
 
   dataSet.loadData();
 
   const { images: testImages, labels: testLabels } =
     await dataSet.getTestData();
 
-  const optimizer = tf.train.adam(0.0010000000474974513);
+  const optimizer = tf.train.adam();
 
   modelo.compile({
     optimizer: optimizer,
@@ -154,6 +153,7 @@ async function avaliar() {
       `  Loss = ${evalOutput[0].dataSync()[0].toFixed(3)}; ` +
       `Accuracy = ${evalOutput[1].dataSync()[0].toFixed(3)}`
   );
+
 }
 avaliar();
 //run(1, 32, "./model");
