@@ -131,7 +131,7 @@ async function run(epochs, batchSize, modelSavePath) {
 }
 
 async function avaliar() {
-  const modelo = await tf.loadLayersModel("file://../conversao_01_14/model.json");
+  const modelo = await tf.loadLayersModel("file://../conversao_01_12/model.json");
 
   dataSet.loadData();
 

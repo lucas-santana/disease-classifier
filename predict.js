@@ -22,7 +22,7 @@ try {
     Função que será chamada dentro da função predict 
 */
 async function classificar(filePath) {
-  const model = await tf.loadLayersModel("file://conversao_01_07/model.json");
+  const model = await tf.loadLayersModel("file://conversao_01_13/model.json");
 
   const img = fs.readFileSync(filePath);
   tensor3D = tf.node.decodeJpeg(img, 3);
@@ -60,4 +60,9 @@ function predict() {
   });
 }
 //console.log(require("path").join(folderPath, "DRUSEN-95633-1.jpeg"));
-classificar(require('path').join(folderPath, 'DRUSEN-95633-1.jpeg'));
+
+classificar(require('path').join('dataset/test/DRUSEN/', 'DRUSEN-9800172-1.jpeg'));
+classificar(require('path').join('dataset/test/NORMAL/', 'NORMAL-4839633-1.jpeg'));
+
+
+
