@@ -1,6 +1,11 @@
-.upload-card {
+.upload {
   padding: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+.file-input {
+  display: none;
+}
+

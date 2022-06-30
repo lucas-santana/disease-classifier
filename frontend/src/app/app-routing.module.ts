@@ -5,7 +5,7 @@ const routes: Routes = [
   {path: '', pathMatch:'full', redirectTo:'upload'},
   {
     path: 'upload',
-    loadChildren: () => import('./upload/upload.module').then(m => m.UploadModule)
+    loadChildren: () => import('./file/file.module').then(m => m.FileModule)
   }
 ];
 
