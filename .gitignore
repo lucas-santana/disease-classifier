@@ -4,3 +4,5 @@ dataset/
 oct_2017/*
 novo/*
 .ipynb_checkpoints
+*/.vscode/
+*/.idea/

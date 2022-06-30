@@ -22,7 +22,7 @@ try {
     Função que será chamada dentro da função predict 
 */
 async function classificar(filePath) {
-  const model = await tf.loadLayersModel("file://conversao_01_13/model.json");
+  const model = await tf.loadLayersModel("file://conversao/conversao_01_13/model.json");
 
   const img = fs.readFileSync(filePath);
   tensor3D = tf.node.decodeJpeg(img, 3);
