@@ -25,10 +25,10 @@ export class FileUploadComponent implements OnInit {
     if (file) {
       this.fileName = file.name;
       const formData = new FormData();
-      formData.append('thumbnail', file);
+      formData.append('imagem', file);
 
       const upload$ = this.http
-        .post('/api/upload', formData, {
+        .post('http://localhost:3000/upload', formData, {
           reportProgress: true,
           observe: 'events',
         })
