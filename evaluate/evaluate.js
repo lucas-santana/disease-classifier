@@ -2,8 +2,8 @@ const tf = require("@tensorflow/tfjs-node");
 const fs = require("fs");
 const path = require("path");
 
-const TRAIN_FOLDER = "../novo/train/";
-const TEST_FOLDER = "../novo/test/";
+const TRAIN_FOLDER = "../dataset/train/";
+const TEST_FOLDER = "../dataset/test/";
 
 const classes = ["DRUSEN", "NORMAL"];
 
@@ -19,10 +19,12 @@ function loadImages(dataDir) {
   let buffer;
   let imageTensor;
 
+  NORMAL_DRUSEN_IMAGES = [];
+
   for (let j = 0; j < N_CLASSES; j++) {
     dataDir1 = dataDir + `/${classes[j]}`;
     files = fs.readdirSync(dataDir1);
-
+    count = 0;
     for (let i = 0; i < files.length; i++) {
       if (!files[i].toLocaleLowerCase().endsWith(".jpeg")) {
         continue;
@@ -30,7 +32,7 @@ function loadImages(dataDir) {
 
       filePath = path.join(dataDir1, files[i]);
 
-      console.log(`Checking ${classes[j]} images..|| image = ${filePath}`);
+      //console.log(`Checking ${classes[j]} images..|| image = ${filePath}`);
 
       buffer = fs.readFileSync(filePath);
 
@@ -41,16 +43,28 @@ function loadImages(dataDir) {
       //   .div(tf.scalar(255.0))
       //   .expandDims();
 
-      imageTensor = tf.node
-        .decodeJpeg(buffer, 3)
-        .resizeNearestNeighbor((size = [180, 180]))
-        .expandDims();
+      // tidy limpa todos os tf.Tensor s que não são retornados por uma função depois de executá-la
+      // apenas o tensor retornado por expandDims() será mantido na memória
+      imageTensor = tf.tidy(() => {
+        return tf.node
+          .decodeJpeg(buffer, 3)
+          .resizeNearestNeighbor((size = [180, 180]))
+          .expandDims();
+      });
+
+      console.log("numTensors: " + tf.memory().numTensors);
 
       images.push(imageTensor);
 
       labels.push(j);
+
+      count++;
     }
+    NORMAL_DRUSEN_IMAGES[j] = count;
   }
+
+  console.log("IMAGENS DRUSEN: " + NORMAL_DRUSEN_IMAGES[0]);
+  console.log("IMAGENS NORMAL: " + NORMAL_DRUSEN_IMAGES[1]);
 
   return [images, labels];
 }
@@ -72,8 +86,7 @@ class Dataset {
   getTrainData() {
     return {
       images: tf.concat(this.trainData[0]),
-      labels: tf
-        .oneHot(tf.tensor1d(this.trainData[1], "int32"), this.n)
+      labels: tf.oneHot(tf.tensor1d(this.trainData[1], "int32"), this.n),
     };
   }
   async getTestData() {
@@ -81,8 +94,6 @@ class Dataset {
 
     let labelTensor = tf.tensor1d(this.testData[1], "int32");
     //labelTensor = tf.oneHot(labelTensor, 2);
-
-    labelTensor = labelTensor;
 
     // await labelTensor.array().then(array => {
     //   console.log(array)
@@ -131,12 +142,14 @@ async function run(epochs, batchSize, modelSavePath) {
 }
 
 async function avaliar() {
-  const modelo = await tf.loadLayersModel("file://../conversao_01_12/model.json");
-
   dataSet.loadData();
 
   const { images: testImages, labels: testLabels } =
     await dataSet.getTestData();
+
+  const modelo = await tf.loadLayersModel(
+    "file://../conversao/20221107_041534/model.json"
+  );
 
   const optimizer = tf.train.adam();
 
@@ -146,14 +159,13 @@ async function avaliar() {
     metrics: ["accuracy"],
   });
 
-  const evalOutput = modelo.evaluate(testImages, testLabels,{ batchSize: 32 });
+  const evalOutput = modelo.evaluate(testImages, testLabels, { batchSize: 32 });
 
   console.log(
     `\nEvaluation result:\n` +
       `  Loss = ${evalOutput[0].dataSync()[0].toFixed(3)}; ` +
       `Accuracy = ${evalOutput[1].dataSync()[0].toFixed(3)}`
   );
-
 }
 avaliar();
 //run(1, 32, "./model");
