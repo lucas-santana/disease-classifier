@@ -1,6 +1,6 @@
-const tf = require("@tensorflow/tfjs-node");
-const fs = require("fs");
-const path = require("path");
+import * as tf from '@tensorflow/tfjs-node';
+import * as fs from "fs"
+import * as path from "path"
 
 const TRAIN_FOLDER = "../dataset/train/";
 const TEST_FOLDER = "../dataset/test/";
@@ -19,12 +19,12 @@ function loadImages(dataDir) {
   let buffer;
   let imageTensor;
 
-  NORMAL_DRUSEN_IMAGES = [];
+  let NORMAL_DRUSEN_IMAGES = [];
 
   for (let j = 0; j < N_CLASSES; j++) {
     dataDir1 = dataDir + `/${classes[j]}`;
     files = fs.readdirSync(dataDir1);
-    count = 0;
+    let count = 0;
     for (let i = 0; i < files.length; i++) {
       if (!files[i].toLocaleLowerCase().endsWith(".jpeg")) {
         continue;
@@ -48,7 +48,7 @@ function loadImages(dataDir) {
       imageTensor = tf.tidy(() => {
         return tf.node
           .decodeJpeg(buffer, 3)
-          .resizeNearestNeighbor((size = [180, 180]))
+          .resizeNearestNeighbor(([180, 180]))
           .expandDims();
       });
 
