@@ -10,7 +10,7 @@ if (!dirs.length > 0) {
 }
 
 (async function () {
-  await model.getDataset("../dataset/less");
+  await model.getDataset("../dataset/test");
 
   for (const dir of dirs) {
     let path = "../conversao/json/" + dir;
