@@ -6,3 +6,4 @@ novo/*
 .ipynb_checkpoints
 */.vscode/
 */.idea/
+conversao/json/*
