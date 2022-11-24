@@ -5,7 +5,7 @@ import * as path from "path";
 export class ModelEvaluate {
     constructor() {
         this.dataset = [];
-        this.n = 2;
+        this.n = 2;//número de classes
         this.classes = ["DRUSEN", "NORMAL"];
     }
 
@@ -38,11 +38,12 @@ export class ModelEvaluate {
 
                 buffer = fs.readFileSync(filePath);
 
-                // tidy limpa todos os tf.Tensor s que não são retornados por uma função depois de executá-la
+                // tidy limpa todos os tf.Tensors que não são retornados por uma função depois de executá-la
                 // apenas o tensor retornado por expandDims() será mantido na memória
                 imageTensor = tf.tidy(() => {
                     return tf.node
                         .decodeJpeg(buffer, 3)
+                        //.resizeBilinear([180,180])
                         .resizeNearestNeighbor([180, 180])
                         .expandDims();
                 });
@@ -92,7 +93,7 @@ export class ModelEvaluate {
         });
 
         const evalOutput = model.evaluate(images, labels, {
-            batchSize: 8,
+            batchSize: 32,
         });
 
         // console.log(

@@ -1,11 +1,28 @@
-import {ModelEvaluate} from "./evaluate_single_model.js";
+import { ModelEvaluate } from "./evaluate_single_model.js";
 import * as fs from "fs";
 import ObjectsToCsv from "objects-to-csv";
+
+let startTime, endTime;
 
 function standardDeviation(numArray) {
     const mean = numArray.reduce((s, n) => parseFloat(s) + parseFloat(n)) / numArray.length;
     const variance = numArray.reduce((s, n) => s + (n - mean) ** 2, 0) / (numArray.length);
     return Math.sqrt(variance);
+}
+
+function start() {
+    startTime = new Date();
+};
+
+function end() {
+    endTime = new Date();
+    var timeDiff = endTime - startTime; //in ms
+    // strip the ms
+    timeDiff /= 1000;
+
+    // get seconds 
+    var seconds = Math.round(timeDiff);
+    console.log(seconds + " seconds");
 }
 
 let model = new ModelEvaluate();
@@ -21,7 +38,7 @@ try {
     }
 
     (async function () {
-        let folder = "../dataset/test";
+        let folder = "../dataset/train";
         await model.getDataset(folder);
         let resultArray = []
         console.log(`Inciando evaluate dos modelos do diretório ${folder} \n`);
@@ -32,7 +49,10 @@ try {
         let accArr = [];
 
         let i = 1;
+        const csv = new ObjectsToCsv(resultArray);
         for (const dir of dirs) {
+            start();
+
             let path = "../conversao/json/" + dir;
             let files = fs.readdirSync(path);
             let modelPath = "file://" + path + "/" + files[1];
@@ -49,7 +69,9 @@ try {
                 fileName: path,
                 loss: result.loss.toString().replace(".", ","),
                 acc: result.acc.toString().replace(".", ",")
-            })
+            });
+            await csv.toDisk("../statistics/js/" + csvFileName + ".csv");
+            end();            
         }
 
         const soma = accArr.reduce((a, b) => parseFloat(a) + parseFloat(b), 0);
@@ -69,8 +91,6 @@ try {
             loss: "DP",
             acc: desvioPadrao
         })
-
-        const csv = new ObjectsToCsv(resultArray);
 
         // Save to file:
         await csv.toDisk("../statistics/js/" + csvFileName + ".csv");
