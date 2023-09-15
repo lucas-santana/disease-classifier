@@ -56,6 +56,9 @@ $ cd backend
 # Instale as dependências
 $ npm install
 
+# Instalar o tensorflow
+$ npm install @tensorflow/tfjs-node
+
 # Execute a aplicação
 $ node index.js
 
@@ -67,14 +70,8 @@ $ node index.js
 
 ```bash
 
-# Clone este repositório
-$ git clone https://github.com/lucas-santana/disease-classifier.git
-
-# Acesse a pasta do projeto no seu terminal/cmd
-$ cd disease-classifier
-
 # Vá para a pasta da aplicação Front End
-$ cd frontend
+$ cd ../frontend
 
 # Instale as dependências
 $ npm install
@@ -103,11 +100,32 @@ As seguintes ferramentas foram usadas na construção do projeto:
 -   **[CORS](https://expressjs.com/en/resources/middleware/cors.html)**
 -   **[express-fileupload](https://github.com/richardgirges/express-fileupload#readme)**
 
-> Veja o arquivo  [package.json](https://github.com/lucas-santana/disease-classifier/tree/main/backend/package.json)
+Veja o arquivo  [package.json](https://github.com/lucas-santana/disease-classifier/tree/main/backend/package.json)
 
 ---
+
+## 🛠 Conversão do modelo do formato .keras para um formato compatível com tfjs-node
+
+A função _converterKeras_ no arquivo  [converter_keras_json.ipynb](https://github.com/lucas-santana/disease-classifier/blob/main/converter_keras_json.ipynb) realiza a conversão do modelo no formato .keras para o formato .json a ser utilizado pela aplicação backend.
+
+Chamar a função passando o caminho do arquivo keras: 
+```
+current_dir = os.path.abspath(os.getcwd())
+converterKeras(current_dir+"/keras/keras/20221107_041534.keras")
+
+```
+Essa função ira salvar o modelo com os metadados na pasta [conversao](https://github.com/lucas-santana/disease-classifier/tree/main/conversao).
+
+## 🛠 Importando o modelo convertido na aplicação backend (Node.js)
+
+A importação do modelo no backend é realizada no arquivo [index.js](/home/lucas/disease-classifier/backend/index.js) com a função ```tf.loadLayersModel```.
+
+Na pasta [conversao](https://github.com/lucas-santana/disease-classifier/tree/main/conversao) já existe alguns modelos convertidos.
+
 
 ## 🛠 Imagens de Teste
 
 A pasta test_images contém algumas imagens de teste que poderão ser utilizadas para testar a aplicação.
+
+
 
